@@ -4,23 +4,22 @@ public class Backend {
 
     private final String SUCCESS_OPERATION = " УСПЕШНО ВЫПОЛНЕНА;";
     private final String UNSUCCESS_OPERATION = " НЕ ВЫПОЛНЕНА;";
-    private final String FAIL_CREDIT = "";
+    private final String FAIL_CREDIT = "Баланс банка меньше указанной суммы";
 
     private long bankAmount = 0;
+    private String handler;
 
     public void outputInfo(Request request, String message){
         StringBuilder resultString = new StringBuilder();
 
-        resultString.append("Бэк-система: ");
-        resultString.append(request);
-        resultString.append(message);
+        resultString.append("Бэк-система: ").append(request).append(message);
         System.out.println(resultString.toString());
     }
 
     public void handleRequest(Request request) {
 
         long requestAmount = request.getAmount();
-
+        this.handler = request.getHandlerName();
         String helpString = "";
 
         switch (request.getType()) {
@@ -45,13 +44,11 @@ public class Backend {
         }
 
         resultString.append(flag ? SUCCESS_OPERATION : UNSUCCESS_OPERATION);
-        resultString.append(" получена от ");
-        resultString.append(Thread.currentThread().getName());
+        resultString.append(" получена от ").append(this.handler);
         if (!flag) {
-            resultString.append(FAIL_CREDIT);
+            resultString.append(". ").append(FAIL_CREDIT);
         }
-        resultString.append(". Баланс банка: ");
-        resultString.append(bankAmount);
+        resultString.append(". Баланс банка: ").append(bankAmount);
 
         return resultString.toString();
     }
@@ -61,11 +58,9 @@ public class Backend {
 
         bankAmount += amount;
 
-        resultString.append(SUCCESS_OPERATION);
-        resultString.append(" получена от ");
-        resultString.append(Thread.currentThread().getName());
-        resultString.append(". Баланс банка: ");
-        resultString.append(bankAmount);
+        resultString.append(SUCCESS_OPERATION)
+                    .append(" получена от ").append(this.handler)
+                    .append(". Баланс банка: ").append(bankAmount);
 
         return resultString.toString();
     }

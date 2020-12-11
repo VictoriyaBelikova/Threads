@@ -2,6 +2,7 @@ package sber.bank.toy;
 
 public class Request {
     private String clientName;
+    private String handlerName;
     private long amount;
     private RequestType type;
 
@@ -16,7 +17,15 @@ public class Request {
     }
 
     public String getClientName() {
-        return clientName;
+        return this.clientName;
+    }
+
+    public String getHandlerName() {
+        return this.handlerName;
+    }
+
+    public void setHandlerName(String handlerName) {
+        this.handlerName = handlerName;
     }
 
     public long getAmount() {

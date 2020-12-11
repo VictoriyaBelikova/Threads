@@ -1,39 +1,33 @@
 package sber.bank.toy;
 
-import java.util.Deque;
-import java.util.ArrayDeque;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 public class FrontalSystem {
 
-    private final Deque<Request> requests = new ArrayDeque<Request>();
+    private final int REQUESTS_COUNT = 2;
 
-    public synchronized void sendRequest(Request request){
-        while (requests.size() >= 2){
-            try{
-                wait();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                System.err.println("Thread interrupted " + e);
-            }
+    private final BlockingQueue<Request> requests = new ArrayBlockingQueue<Request>(REQUESTS_COUNT);
+
+    public void sendRequest(Request request){
+        try{
+            requests.put(request);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("Thread interrupted ");
+            e.printStackTrace();
         }
-
-        requests.add(request);
-        notifyAll();
     }
 
-    public synchronized Request receive(){
-        while (requests.size() == 0){
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                System.err.println("Thread interrupted");
-                e.printStackTrace();
-            }
+    public Request receive(){
+        Request request = null;
+        try {
+            request = requests.take();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("Thread interrupted ");
+            e.printStackTrace();
         }
-
-        Request request = requests.poll();
-        notifyAll();
         return request;
     }
 }

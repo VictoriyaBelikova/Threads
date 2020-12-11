@@ -2,37 +2,33 @@ package sber.bank.toy;
 
 import sber.bank.toy.RequestType;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class ApplicationRunner {
+
+    public final static int CLIENTS_COUNT = 5;
+    public final static int OPERATORS_COUNT = 2;
+
+    private final static ExecutorService bankClients = Executors.newFixedThreadPool(CLIENTS_COUNT);
+    private final static ExecutorService operators = Executors.newFixedThreadPool(OPERATORS_COUNT);
 
     public static void main(String[] args) {
 
         FrontalSystem frontend = new FrontalSystem();
         Backend backend = new Backend();
 
-        Client client1 = new Client("Клиент №1", frontend);
-        Client client2 = new Client("Клиент №2", frontend);
-        Client client3 = new Client("Клиент №3", frontend);
-        Client client4 = new Client("Клиент №4", frontend);
-        Client client5 = new Client("Клиент №5", frontend);
+        for (int i = 0; i < CLIENTS_COUNT; i++) {
+            String name = "Клиент №" + (i + 1);
+            Client client = new Client(name, frontend);
+            client.createRandomRequest();
+            bankClients.execute(client);
+        }
 
-        client1.createRequest(5000L, RequestType.REPAYMENT);
-        client2.createRequest(2000L, RequestType.CREDIT);
-        client3.createRequest(13000L, RequestType.REPAYMENT);
-        client4.createRequest(45000L, RequestType.REPAYMENT);
-        client5.createRequest(125000L, RequestType.CREDIT);
-
-
-        RequestHandler requestHandler1 = new RequestHandler("Обработчик заявок №1", frontend, backend);
-        RequestHandler requestHandler2 = new RequestHandler("Обработчик заявок №2", frontend, backend);
-
-        client1.start();
-        client2.start();
-        client3.start();
-        client4.start();
-        client5.start();
-
-        requestHandler1.start();
-        requestHandler2.start();
+        for (int i = 0; i < OPERATORS_COUNT; i++) {
+            String name = "Обработчик заявок №" + (i + 1);
+            RequestHandler requestHandler = new RequestHandler(name, frontend, backend);
+            operators.execute(requestHandler);
+        }
     }
-
 }
